@@ -3,6 +3,7 @@ What this utility should do:
 	Flags:
 		-c count = retrieve {count} images
 		-nsfw = retrieve nsfw images
+		-t tag = retrieve images with tag {tag}
 		-ep endpoint = retrieve from {endpoint}
 	Endpoint integration:
 		This utility is designed to be able to retrieve most images from most APIs. To archieve this,
