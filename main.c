@@ -8,6 +8,7 @@
 #include "epconnect.h"
 
 int main(int argc, char **argv) {
+	printf("any-download\n");
 	for(int arg = 1; arg < argc; ++arg) {
 		if(argv[arg][0] == '-') {
 			switch(argv[arg][1]) {
@@ -50,5 +51,13 @@ int main(int argc, char **argv) {
 			}
 		}
 	}
+	http_hb request;
+	request.headers = malloc(SOCK_ALLOC_SIZE);
+	request.body = malloc(SOCK_ALLOC_SIZE);
+	strcpy(request.headers, "Host: www.nekos.moe\n");
+	strcpy(request.body, "\n");
+	http_request("www.nekos.moe", "/api/v1/random/image", "GET", &request);
+	printf("HEADERS:\n%s\n", request.headers);
+	printf("BODY:\n%s\n", request.body);
 	return 0;
 }
