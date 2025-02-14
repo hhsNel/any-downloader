@@ -1,0 +1,9 @@
+A hopefully somewhat SUCKLESS utility inspired by the masterpieces "CatgirlDownloader" and "WaifuDownloader"
+What this utility should do:
+	Flags:
+		-c count = retrieve {count} images
+		-nsfw = retrieve nsfw images
+		-ep endpoint = retrieve from {endpoint}
+	Endpoint integration:
+		This utility is designed to be able to retrieve most images from most APIs. To archieve this,
+there should be a file that dictates which endpoints are usable and how to use them.
