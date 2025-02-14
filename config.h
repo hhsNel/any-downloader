@@ -20,3 +20,6 @@ int count = 1;	/* default count */
 int nsfw = 1;	/* default nsfw. 1 = true, 0 = false */
 endpoint *chosen_endpoint = &endpoints[0];	/* default endpoint (first endpoint on list) */
 
+#define SOCK_BUFFER_SIZE 8*1024*1024
+/* max download size: 8 mb */
+

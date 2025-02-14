@@ -5,6 +5,7 @@
 #include "response.h"
 #include "urloption.h"
 #include "config.h"
+#include "epconnect.h"
 
 int main(int argc, char **argv) {
 	for(int arg = 1; arg < argc; ++arg) {
