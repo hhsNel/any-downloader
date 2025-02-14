@@ -16,3 +16,7 @@ endpoint endpoints[] = {
 		{{ENDPOINT_RESPONSE_JSON,"images[0].id","","https://nekos.moe/image/"},{ENDPOINT_RESPONSE_IMAGE,"","",""}} }
 };
 
+int count = 1;	/* default count */
+int nsfw = 1;	/* default nsfw. 1 = true, 0 = false */
+endpoint *chosen_endpoint = &endpoints[0];	/* default endpoint (first endpoint on list) */
+
