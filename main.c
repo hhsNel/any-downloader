@@ -14,8 +14,8 @@ int main(int argc, char **argv) {
 	printf("any-downloader\n");
 
 	param head;
-	head.id = "nsfw";
-	head.value = nsfw ? "true" : "false";
+	head.id = "";
+	head.value = "";
 	head.next = NULL;
 	for(int arg = 1; arg < argc; ++arg) {
 		if(argv[arg][0] == '-') {
@@ -61,9 +61,9 @@ int main(int argc, char **argv) {
 	}
 
 	char *buffer = malloc(DOWNLOAD_BUFFER_SIZE);
-	bzero(buffer, DOWNLOAD_BUFFER_SIZE);
-	resolve_endpoint(chosen_endpoint, &head, buffer);
+	size_t size;
+	resolve_endpoint(chosen_endpoint, &head, buffer, &size);
 	FILE *file = fopen("adout", "w");
-	fwrite(buffer, sizeof(char), strlen(buffer), file);
+	fwrite(buffer, sizeof(char), size, file);
 	fclose(file);
 }

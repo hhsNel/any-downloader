@@ -3,8 +3,8 @@
 #include <cjson/cJSON.h>
 
 cJSON *get_next_path(cJSON *json_path, char *id);
-static void resolve_connection(char *url, endpoint_response *resp, char *buffer);
-void resolve_endpoint(endpoint *ep, param *params, char *buffer);
+static void resolve_connection(char *url, endpoint_response *resp, char *buffer, size_t *size);
+void resolve_endpoint(endpoint *ep, param *params, char *buffer, size_t *size);
 
 cJSON *get_next_path(cJSON *json_path, char *id) {
 	if(id[0] == '\0') return json_path;
@@ -20,8 +20,8 @@ cJSON *get_next_path(cJSON *json_path, char *id) {
 	}
 }
 
-static void resolve_connection(char *url, endpoint_response *resp, char *buffer) {
-	download_http(url, buffer);
+static void resolve_connection(char *url, endpoint_response *resp, char *buffer, size_t *size) {
+	download_http(url, buffer, size);
 	char *next_url;
 	char *id;
 	switch(resp->data_type) {
@@ -35,7 +35,7 @@ static void resolve_connection(char *url, endpoint_response *resp, char *buffer)
 			next_url = malloc(strlen(resp->data_str)+pos2-pos1+1);
 			strcpy(next_url, resp->data_str);
 			strncat(next_url, pos1, pos2 - pos1 + 1);
-			resolve_connection(next_url, resp + 1, buffer);
+			resolve_connection(next_url, resp + 1, buffer, size);
 			free(next_url);
 			return;
 		case ENDPOINT_RESPONSE_JSON:
@@ -63,7 +63,7 @@ static void resolve_connection(char *url, endpoint_response *resp, char *buffer)
 			next_url = malloc(strlen(resp->data_str)+strlen(value)+1);
 			strcpy(next_url, resp->data_str);
 			strcat(next_url, value);
-			resolve_connection(next_url, resp + 1, buffer);
+			resolve_connection(next_url, resp + 1, buffer, size);
 			//cJSON_Delete(json);
 			free(next_url);
 			return;
@@ -75,7 +75,7 @@ static void resolve_connection(char *url, endpoint_response *resp, char *buffer)
 	}
 }
 
-void resolve_endpoint(endpoint *ep, param *params, char *buffer) {
+void resolve_endpoint(endpoint *ep, param *params, char *buffer, size_t *size) {
 	strcpy(buffer, ep->base_url);
 	do {
 		for(int i = 0; i < MAX_URL_OPTIONS; ++i) {
@@ -87,6 +87,6 @@ void resolve_endpoint(endpoint *ep, param *params, char *buffer) {
 	strcat(buffer, ep->url_suffix);
 	char url[strlen(buffer) + 1];
 	strcpy(url, buffer);
-	resolve_connection(url, ep->responses, buffer);
+	resolve_connection(url, ep->responses, buffer, size);
 }
 
