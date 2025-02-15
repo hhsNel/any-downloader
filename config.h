@@ -11,7 +11,7 @@ typedef struct _endpoint {
 
 endpoint endpoints[] = {
 	/* endpoint name     endpoint url                                endpoint url options                           url suffix     (responses in new line) */
-	{ "nekos",           "https://nekos.moe/api/v1/random/image",    {{"nsfw","&nsfw=true"},{"",""}},               "",
+	{ "nekos",           "https://nekos.moe/api/v1/random/image?",    {{"nsfw","&nsfw=true"},{"",""}},               "",
 		{{ENDPOINT_RESPONSE_JSON,"images[0].id","","https://nekos.moe/image/"},{ENDPOINT_RESPONSE_IMAGE,"","",""}} }
 };
 

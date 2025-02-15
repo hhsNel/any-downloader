@@ -7,6 +7,7 @@
 #include "config.h"
 #include "epconnect.h"
 #include "params.h"
+#include "endpointresolver.h"
 
 int main(int argc, char **argv) {
 	curl_global_init(CURL_GLOBAL_ALL);
@@ -15,6 +16,7 @@ int main(int argc, char **argv) {
 	param head;
 	head.id = "nsfw";
 	head.value = nsfw ? "true" : "false";
+	head.next = NULL;
 	for(int arg = 1; arg < argc; ++arg) {
 		if(argv[arg][0] == '-') {
 			switch(argv[arg][1]) {
@@ -58,8 +60,10 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	char *buff = malloc(DOWNLOAD_BUFFER_SIZE);
-	download_http("http://www.nekos.moe/", buff);
-	printf("%s\n", buff);
-	return 0;
+	char *buffer = malloc(DOWNLOAD_BUFFER_SIZE);
+	bzero(buffer, DOWNLOAD_BUFFER_SIZE);
+	resolve_endpoint(chosen_endpoint, &head, buffer);
+	FILE *file = fopen("adout", "w");
+	fwrite(buffer, sizeof(char), strlen(buffer), file);
+	fclose(file);
 }
