@@ -30,8 +30,7 @@ int main(int argc, char **argv) {
 				case 'n':
 					nsfw = 1;
 					break;
-				case 't':
-					printf("Not implemented yet\n");
+				case 'p':
 					if(arg + 2 >= argc) {
 						printf("Expected two more arguments after -t\n");
 						exit(1);
@@ -58,6 +57,12 @@ int main(int argc, char **argv) {
 					break;
 			}
 		}
+	}
+	printf("Using endpoint: %s\n", chosen_endpoint->name);
+	param *param_print = &head;
+	while(param_print->next != NULL) {
+		param_print = param_print->next;
+		printf("\tParameter: %s, value: %s\n", param_print->id, param_print->value);
 	}
 
 	char *buffer = malloc(DOWNLOAD_BUFFER_SIZE);

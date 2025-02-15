@@ -21,11 +21,14 @@ cJSON *get_next_path(cJSON *json_path, char *id) {
 }
 
 static void resolve_connection(char *url, endpoint_response *resp, char *buffer, size_t *size, char **ctype) {
+	printf("Downloading url: %s\n", url);
 	download_http(url, buffer, size, ctype);
+	printf("Downloaded, size: %lld\n", (long long int)(*size));
 	char *next_url;
 	char *id;
 	switch(resp->data_type) {
 		case ENDPOINT_RESPONSE_PLAINTEXT:
+			printf("Treating recieved data as PLAINTEXT\n");
 			char *pos1 = strstr(buffer, resp->str1), *pos2 = strstr(buffer, resp->str2);
 			if(pos1 == NULL || pos2 == NULL) {
 				printf("Response strings not found in PLAINTEXT response\n");
@@ -39,6 +42,7 @@ static void resolve_connection(char *url, endpoint_response *resp, char *buffer,
 			free(next_url);
 			return;
 		case ENDPOINT_RESPONSE_JSON:
+			printf("Treating recieved data as JSON\n");
 			cJSON *json = cJSON_Parse(buffer);
 			char *last_path = resp->str1, *path = resp->str1;
 			cJSON *json_path = json;
@@ -68,6 +72,7 @@ static void resolve_connection(char *url, endpoint_response *resp, char *buffer,
 			free(next_url);
 			return;
 		case ENDPOINT_RESPONSE_IMAGE:
+			printf("Treating recieved data as IMAGE\n");
 			return;
 		case ENDPOINT_RESPONSE_NONE:
 			printf("ENDPOINT_RESPONSE_NONE found while resolving connection\n");
@@ -80,7 +85,8 @@ void resolve_endpoint(endpoint *ep, param *params, char *buffer, size_t *size, c
 	do {
 		for(int i = 0; i < MAX_URL_OPTIONS; ++i) {
 			if(strcmp(params->id, ep->options[i].option) == 0) {
-				sprintf(buffer + strlen(buffer), ep->options[i].format, params->value);
+				size_t chars_written = sprintf(buffer + strlen(buffer), ep->options[i].format, params->value);
+				printf("Parameter: %s, detected and supported. Format: %s, value: %s, formatted: %s\n", params->id, ep->options[i].format, params->value, buffer + strlen(buffer) - chars_written);
 			}
 		}
 	} while(params->next);

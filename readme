@@ -1,9 +1,10 @@
 A hopefully somewhat SUCKLESS utility inspired by the masterpieces "CatgirlDownloader" and "WaifuDownloader"
 What this utility should do:
 	Flags:
-		-n          | --nsfw              = retrieve nsfw images
-		-t tag      | --tag tag           = retrieve images with tag {tag}
-		-e endpoint | --endpoint endpoint = retrieve from {endpoint}
+		-n             | --nsfw              = retrieve nsfw images
+		-p param value | --param param valye = add a parameter if the endpoint supports it
+		-e endpoint    | --endpoint endpoint = retrieve from {endpoint}
 	Endpoint integration:
 		This utility is designed to be able to retrieve most images from most APIs. To archieve this,
-there should be a file that dictates which endpoints are usable and how to use them.
+there should be a file that dictates which endpoints are usable and how to use them (config.def.h and
+config.h).
