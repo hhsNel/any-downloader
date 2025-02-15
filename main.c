@@ -58,6 +58,10 @@ int main(int argc, char **argv) {
 			}
 		}
 	}
+	if(nsfw) {
+		printf("Adding nsfw\n");
+		add_param(&head, "nsfw", "true");
+	}
 	printf("Using endpoint: %s\n", chosen_endpoint->name);
 	param *param_print = &head;
 	while(param_print->next != NULL) {

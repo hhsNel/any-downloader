@@ -10,9 +10,11 @@ typedef struct _endpoint {
 } endpoint;
 
 endpoint endpoints[] = {
-	/* endpoint name     endpoint url                                endpoint url options                           url suffix     (responses in new line) */
-	{ "nekos",           "https://nekos.moe/api/v1/random/image?",    {{"nsfw","&nsfw=true"},{"",""}},               "",
-		{{ENDPOINT_RESPONSE_JSON,"images[0].id","","https://nekos.moe/image/"},{ENDPOINT_RESPONSE_IMAGE,"","",""}} }
+	/* endpoint name     endpoint url                                endpoint url options                                      url suffix     (responses in new line) */
+	{ "nekos",           "https://nekos.moe/api/v1/random/image?",    {{"nsfw","&nsfw=true"},{"",""}},                         "",	/* nokos.moe API v1 */
+		{{ENDPOINT_RESPONSE_JSON,"images[0].id","","https://nekos.moe/image/"},{ENDPOINT_RESPONSE_IMAGE,"","",""}} },
+	{ "waifu",           "https://api.waifu.im/search?",              {{"nsfw","&is_nsfw=true"},{"tag","&included_tags=%s"}},   "",	/* waifu.im API version unknown */
+		{{ENDPOINT_RESPONSE_JSON,"images[0].url","",""},{ENDPOINT_RESPONSE_IMAGE,"","",""}} },
 };
 
 int count = 1;	/* default count */

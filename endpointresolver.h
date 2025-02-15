@@ -82,14 +82,15 @@ static void resolve_connection(char *url, endpoint_response *resp, char *buffer,
 
 void resolve_endpoint(endpoint *ep, param *params, char *buffer, size_t *size, char **ctype) {
 	strcpy(buffer, ep->base_url);
-	do {
+	while(params) {
 		for(int i = 0; i < MAX_URL_OPTIONS; ++i) {
 			if(strcmp(params->id, ep->options[i].option) == 0) {
 				size_t chars_written = sprintf(buffer + strlen(buffer), ep->options[i].format, params->value);
 				printf("Parameter: %s, detected and supported. Format: %s, value: %s, formatted: %s\n", params->id, ep->options[i].format, params->value, buffer + strlen(buffer) - chars_written);
 			}
 		}
-	} while(params->next);
+		params = params->next;
+	}
 	strcat(buffer, ep->url_suffix);
 	char url[strlen(buffer) + 1];
 	strcpy(url, buffer);
