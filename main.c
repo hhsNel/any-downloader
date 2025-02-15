@@ -62,8 +62,21 @@ int main(int argc, char **argv) {
 
 	char *buffer = malloc(DOWNLOAD_BUFFER_SIZE);
 	size_t size;
-	resolve_endpoint(chosen_endpoint, &head, buffer, &size);
-	FILE *file = fopen("adout", "w");
+	char *type;
+	resolve_endpoint(chosen_endpoint, &head, buffer, &size, &type);
+	printf("Recieved: %lld bytes, Content-Type: %s\n", (long long int)size, type ? type : "NULL");
+	char *file_format;
+	if(type) {
+		file_format = strchr(type, '/') + 1;
+		printf("Extracted file format: %s\n", file_format);
+	} else {
+		file_format = "unknown";
+	}
+	char filename[strlen(DOWNLOAD_FILENAME) + strlen(file_format) + 1];
+	strcpy(filename, DOWNLOAD_FILENAME);
+	strcat(filename, file_format);
+	printf("Writing to: %s\n", filename);
+	FILE *file = fopen(filename, "w");
 	fwrite(buffer, sizeof(char), size, file);
 	fclose(file);
 }

@@ -14,7 +14,7 @@ static size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp) {
 	return size * nmemb;
 }
 
-void download_http(char *url, char *buff, size_t *size) {
+void download_http(char *url, char *buff, size_t *size, char **ctype) {
 	CURL *curl = curl_easy_init();
 	if(!curl) {
 		printf("Could not init CURL\n");
@@ -35,5 +35,19 @@ void download_http(char *url, char *buff, size_t *size) {
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &dd);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 	res = curl_easy_perform(curl);
+	if(res != CURLE_OK) {
+		printf("Could not download\n");
+		exit(1);
+	}
+
+	char *content_type = NULL;
+	res = curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, &content_type);
+	if(res != CURLE_OK || content_type == NULL) {
+		printf("Could not get Content-Type header, continuing...\n");
+		*ctype = NULL;
+	} else {
+		*ctype = strdup(content_type);
+	}
+
 	curl_easy_cleanup(curl);
 }

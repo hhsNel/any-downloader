@@ -22,3 +22,6 @@ endpoint *chosen_endpoint = &endpoints[0];	/* default endpoint (first endpoint o
 #define DOWNLOAD_BUFFER_SIZE 8*1024*1024
 /* max download size: 8 mb */
 
+#define DOWNLOAD_FILENAME "ad-out."
+/* filename without file extenstion */
+
