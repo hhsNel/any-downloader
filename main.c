@@ -6,10 +6,15 @@
 #include "urloption.h"
 #include "config.h"
 #include "epconnect.h"
+#include "params.h"
 
 int main(int argc, char **argv) {
 	curl_global_init(CURL_GLOBAL_ALL);
-	printf("any-download\n");
+	printf("any-downloader\n");
+
+	param head;
+	head.id = "nsfw";
+	head.value = nsfw ? "true" : "false";
 	for(int arg = 1; arg < argc; ++arg) {
 		if(argv[arg][0] == '-') {
 			switch(argv[arg][1]) {
@@ -25,11 +30,11 @@ int main(int argc, char **argv) {
 					break;
 				case 't':
 					printf("Not implemented yet\n");
-					exit(1);
-					if(arg + 1 >= argc) {
-						printf("Expected another argument after -t\n");
+					if(arg + 2 >= argc) {
+						printf("Expected two more arguments after -t\n");
 						exit(1);
 					}
+					add_param(&head, argv[++argc], argv[++argc]);
 					break;
 				case 'e':
 					if(arg + 1 >= argc) {
@@ -52,6 +57,7 @@ int main(int argc, char **argv) {
 			}
 		}
 	}
+
 	char *buff = malloc(DOWNLOAD_BUFFER_SIZE);
 	download_http("http://www.nekos.moe/", buff);
 	printf("%s\n", buff);
