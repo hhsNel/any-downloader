@@ -11,8 +11,8 @@ typedef struct _endpoint {
 } endpoint;
 
 endpoint endpoints[] = {
-	/* endpoint name  endpoint url                             endpoint url options                           url suffix  additional header(s)  (responses in new line) */
-	{ "nekos",        "https://nekos.moe/api/v1/random/image", {{"nsfw","&nsfw=true"},{"count","&count=%d"}}, "",         "",
+	/* endpoint name  endpoint url                             endpoint url options                           url suffix  (responses in new line) */
+	{ "nekos",        "https://nekos.moe/api/v1/random/image", {{"nsfw","&nsfw=true"},{"count","&count=%d"}}, "",
 		{{ENDPOINT_RESPONSE_JSON,"images[0].id","","https://nekos.moe/image/"},{ENDPOINT_RESPONSE_IMAGE,"","",""}} }
 };
 
@@ -20,8 +20,6 @@ int count = 1;	/* default count */
 int nsfw = 1;	/* default nsfw. 1 = true, 0 = false */
 endpoint *chosen_endpoint = &endpoints[0];	/* default endpoint (first endpoint on list) */
 
-#define SOCK_BUFFER_SIZE 256
-/* max download size at a time: 256 bytes */
-#define SOCK_ALLOC_SIZE 1*1024
-/* resize download buffer every: 1 kb */
+#define DOWNLOAD_BUFFER_SIZE 8*1024*1024
+/* max download size: 8 mb */
 

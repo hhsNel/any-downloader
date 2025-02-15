@@ -1,7 +1,6 @@
 A hopefully somewhat SUCKLESS utility inspired by the masterpieces "CatgirlDownloader" and "WaifuDownloader"
 What this utility should do:
 	Flags:
-		-c count    | --count count       = retrieve {count} images
 		-n          | --nsfw              = retrieve nsfw images
 		-t tag      | --tag tag           = retrieve images with tag {tag}
 		-e endpoint | --endpoint endpoint = retrieve from {endpoint}
