@@ -23,13 +23,13 @@ cJSON *get_next_path(cJSON *json_path, char *id) {
 }
 
 static void resolve_connection(char *url, endpoint_response *resp, char **buffer, size_t *size, char **ctype, int is_first) {
-	printf("Downloading url: %s\n", url);
+	LOGX("Downloading url: %s\n", url);
 	download_http(url, *buffer, size, ctype);
-	printf("Downloaded, size: %lld\n", (long long int)(*size));
+	LOGX("Downloaded, size: %lld\n", (long long int)(*size));
 	unsigned int i;
 	switch(resp->data_type) {
 		case ENDPOINT_RESPONSE_PLAINTEXT:
-			printf("Treating recieved data as PLAINTEXT\n");
+			LOG("Treating recieved data as PLAINTEXT\n");
 			if(is_first) {
 				for(i = count-1; i > 0; --i) {
 					memcpy(buffer[i], *buffer, *size);
@@ -39,7 +39,7 @@ static void resolve_connection(char *url, endpoint_response *resp, char **buffer
 			resolve_json(resp, *buffer, size, ctype, 0);
 			return;
 		case ENDPOINT_RESPONSE_JSON:
-			printf("Treating recieved data as JSON\n");
+			LOG("Treating recieved data as JSON\n");
 			if(is_first) {
 				for(i = count-1; i > 0; --i) {
 					memcpy(buffer[i], *buffer, *size);
@@ -49,7 +49,7 @@ static void resolve_connection(char *url, endpoint_response *resp, char **buffer
 			resolve_json(resp, *buffer, size, ctype, 0);
 			return;
 		case ENDPOINT_RESPONSE_IMAGE:
-			printf("Treating recieved data as IMAGE\n");
+			LOG("Treating recieved data as IMAGE\n");
 			return;
 		case ENDPOINT_RESPONSE_NONE:
 			printf("ENDPOINT_RESPONSE_NONE found while resolving connection\n");
@@ -63,7 +63,7 @@ void resolve_endpoint(endpoint *ep, param *params, char **buffer, size_t *size, 
 		for(int i = 0; i < MAX_URL_OPTIONS; ++i) {
 			if(strcmp(params->id, ep->options[i].option) == 0) {
 				size_t chars_written = sprintf(*buffer + strlen(*buffer), ep->options[i].format, params->value);
-				printf("Parameter: %s, detected and supported. Format: %s, value: %s, formatted: %s\n", params->id, ep->options[i].format, params->value, *buffer + strlen(*buffer) - chars_written);
+				LOGX("Parameter: %s, detected and supported. Format: %s, value: %s, formatted: %s\n", params->id, ep->options[i].format, params->value, *buffer + strlen(*buffer) - chars_written);
 			}
 		}
 		params = params->next;
@@ -81,7 +81,7 @@ static void resolve_plaintext(endpoint_response *resp, char *buffer, size_t *siz
 	sprintf(fstr2, resp->str2, ct);
 	char *pos1 = strstr(buffer, fstr1), *pos2 = strstr(buffer, fstr2);
 	if(pos1 == NULL || pos2 == NULL) {
-		printf("Response strings not found in PLAINTEXT response\n");
+		LOG("Response strings not found in PLAINTEXT response\n");
 		exit(0);
 	}
 	pos1 += strlen(fstr1);
