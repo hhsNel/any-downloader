@@ -11,10 +11,12 @@ What this utility should do:
                 -F             | --no-farbfeld       = do not convert to farbfeld
                 -s micros      | --sleep micros      = after retrieving an image, wait for {micros}
 microseconds
+		-h             | --halfblock         = uses halfblock trick to double vertical resolution
+		-H             | --no-halfblock      = use spaces for normal vertical resolution
 		-S             | --no-sleep          = do not wait after retrieving an image
 	Endpoint integration:
 		This utility is designed to be able to retrieve most images from most APIs. To archieve this,
 there should be a file that dictates which endpoints are usable and how to use them (config.def.h and
 config.h).
 	Shortest working build command:
-		gcc main.c -lcurl -ljson -ljpeg
+		gcc main.c -lcurl -lcjson -ljpeg

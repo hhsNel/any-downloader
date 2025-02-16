@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <string.h>
+#include <jpeglib.h>
+#include <jerror.h>
 
 #define TO_BIG_ENDIAN(val) \
 	(((val) % 256) << 24 | ((val) / 256) % 256 << 16 | ((val) / 65536) % 256 << 8 | ((val) / 16777216) % 256)
@@ -10,13 +12,9 @@ struct imgRawImage {
 	unsigned long int width, height;
 
 	unsigned char* lpData;
-}
+};
 
-
-struct imgRawImage* loadJpegImageFile(char* lpFilename) {
-	struct jpeg_decompress_struct info;
-	struct jpeg_error_mgr err;
-
+struct imgRawImage *load_jpeg(struct jpeg_decompress_struct *info) {
 	struct imgRawImage* lpNewImage;
 
 	unsigned long int imgWidth, imgHeight;
@@ -27,26 +25,12 @@ struct imgRawImage* loadJpegImageFile(char* lpFilename) {
 
 	unsigned char* lpRowBuffer[1];
 
-	FILE* fHandle;
+	jpeg_read_header(info, TRUE);
 
-	fHandle = fopen(lpFilename, "rb");
-	if(fHandle == NULL) {
-		#ifdef DEBUG
-		fprintf(stderr, "%s:%u: Failed to read file %s\n", __FILE__, __LINE__, lpFilename);
-		#endif
-		return NULL; /* ToDo */
-	}
-
-	info.err = jpeg_std_error(&err);
-	jpeg_create_decompress(&info);
-
-	jpeg_stdio_src(&info, fHandle);
-	jpeg_read_header(&info, TRUE);
-
-	jpeg_start_decompress(&info);
-	imgWidth = info.output_width;
-	imgHeight = info.output_height;
-	numComponents = info.num_components;
+	jpeg_start_decompress(info);
+	imgWidth = info->output_width;
+	imgHeight = info->output_height;
+	numComponents = info->num_components;
 
 	#ifdef DEBUG
 	fprintf(
@@ -67,17 +51,52 @@ struct imgRawImage* loadJpegImageFile(char* lpFilename) {
 	lpNewImage->lpData = lpData;
 
 	/* Read scanline by scanline */
-	while(info.output_scanline < info.output_height) {
-			lpRowBuffer[0] = (unsigned char *)(&lpData[3*info.output_width*info.output_scanline]);
-			jpeg_read_scanlines(&info, lpRowBuffer, 1);
+	while(info->output_scanline < info->output_height) {
+			lpRowBuffer[0] = (unsigned char *)(&lpData[3*info->output_width*info->output_scanline]);
+			jpeg_read_scanlines(info, lpRowBuffer, 1);
 	}
 
-	jpeg_finish_decompress(&info);
-	jpeg_destroy_decompress(&info);
-	fclose(fHandle);
+	jpeg_finish_decompress(info);
+	jpeg_destroy_decompress(info);
 
 	return lpNewImage;
-};
+}
+
+struct imgRawImage* load_jpeg_from_file(char* lpFilename) {
+	struct jpeg_decompress_struct info;
+	struct jpeg_error_mgr err;
+
+	jpeg_create_decompress(&info);
+	info.err = jpeg_std_error(&err);
+
+	FILE* fHandle;
+
+	fHandle = fopen(lpFilename, "rb");
+	if(fHandle == NULL) {
+		#ifdef DEBUG
+		fprintf(stderr, "%s:%u: Failed to read file %s\n", __FILE__, __LINE__, lpFilename);
+		#endif
+		return NULL; /* ToDo */
+	}
+
+	jpeg_stdio_src(&info, fHandle);
+
+	struct imgRawImage *img = load_jpeg(&info);
+
+	fclose(fHandle);
+	return img;
+}
+
+struct imgRawImage *load_jpeg_from_buff(char *buffer, size_t size) {
+	struct jpeg_decompress_struct info;
+	struct jpeg_error_mgr err;
+
+	jpeg_create_decompress(&info);
+	info.err = jpeg_std_error(&err);
+	jpeg_mem_src(&info, buffer, size);
+
+	return load_jpeg(&info);
+}
 
 void save_ff(struct imgRawImage *img, char *filename) {
 	FILE *f = fopen(filename, "wb");
@@ -129,14 +148,31 @@ struct imgRawImage *downscale_image(struct imgRawImage img, unsigned long int ma
 }
 
 void output_raw_image(struct imgRawImage img) {
-	char *buffer = malloc((7 + 3*3 + 3*1 + 2) * img.width + 1);
+	char *buffer = malloc(strlen("\033[48;2;000;000;000m ") * img.width + 1);
 	for(unsigned long int i=0;i<img.height;++i) {
 		size_t length = 0;
 		for(unsigned long int j=0;j<img.width;++j) {
 			size_t px_offset = 3 * (i * img.width + j);
-			length += sprintf(buffer + length, "\033[48;2;%d;%d;%dm ", (int)img.lpData[px_offset], (int)img.lpData[px_offset+1], (img).lpData[px_offset+2]);
+			length += sprintf(buffer + length, "\033[48;2;%d;%d;%dm ", (int)img.lpData[px_offset], (int)img.lpData[px_offset+1], (int)img.lpData[px_offset+2]);
 		}
 		printf("%s\n", buffer);
 	}
+}
+
+void output_raw_image_halfblock(struct imgRawImage img) {
+	char *buffer = malloc(strlen("\033[48;2;000;000;000;38;2;000;000;000m\u2584") * img.width + 1);
+	for(unsigned long long int i = 0; i < img.height; i += 2) {
+		size_t length = 0;
+		for(unsigned long int j=0; j < img.width; ++j) {
+			size_t px1_offset = 3 * (i * img.width + j);
+			size_t px2_offset = 3 * ((i+1) * img.width + j);
+			length += sprintf(buffer + length, "\033[48;2;%d;%d;%d;38;2;%d;%d;%dm\u2584", 
+					(int)img.lpData[px1_offset], (int)img.lpData[px1_offset+1], (int)img.lpData[px1_offset+2],
+					(int)img.lpData[px2_offset], (int)img.lpData[px2_offset+1], (int)img.lpData[px2_offset+2]
+					);
+		}
+		printf("%s\n", buffer);
+	}
+	/* skip last row if height is odd */
 }
 

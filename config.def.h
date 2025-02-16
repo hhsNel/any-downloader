@@ -17,16 +17,14 @@ endpoint endpoints[] = {
 		{{ENDPOINT_RESPONSE_JSON,"images[0].url","",""},{ENDPOINT_RESPONSE_IMAGE,"","",""}} },
 };
 
-#define COMPILE_JPEG_SUPPORT
-/* comment (using //, so: //#define ...) to remove jpeg support. Displaying and converting jpeg to farbfeld will no longer work. -ljpeg no longer needed on compile */
-
 int count = 1;	/* default count */
 int nsfw = 1;	/* default nsfw. 1 = true, 0 = false */
-int sleep = 0;	/* default sleep. 1 = sleep, 0 = don't sleep */
+int sleep_after_image = 0;	/* default sleep. 1 = sleep, 0 = don't sleep */
 useconds_t sleep_micros = 10000000;	/* if sleep, sleep for this many microseconds. 1s = 1000ms = 1000000us */
 int display = 1;	/* default display. 1 = display the image, 0 = exit when image done */
 unsigned long int display_width = 0;	/* If display, set this as max width. 0 or -1 = auto-detect terminal width, use that. */
 unsigned long int display_height = -1;	/* If display, set this as max height. 0 = auto-detect terminal height, use that. -1 = auto-detect terminal height, subtract 1, use that */
+int use_unicode_halfblock = 1; /* Uses unicode halfblock to effectively double the resolution on the Y axis. 1 = use, 0 = don't use. Not all terminals support it */
 endpoint *chosen_endpoint = &endpoints[0];	/* default endpoint (first endpoint on list) */
 
 #define DOWNLOAD_BUFFER_SIZE 8*1024*1024

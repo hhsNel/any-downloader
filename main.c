@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "response.h"
 #include "urloption.h"
@@ -8,6 +9,7 @@
 #include "epconnect.h"
 #include "params.h"
 #include "endpointresolver.h"
+#include "imgrenderer.h"
 
 int main(int argc, char **argv) {
 	curl_global_init(CURL_GLOBAL_ALL);
@@ -36,7 +38,7 @@ int main(int argc, char **argv) {
 				case 'N':
 					N_flag:
 					nsfw = 0;
-					break
+					break;
 				case 'p':
 					p_flag:
 					if(arg + 2 >= argc) {
@@ -64,11 +66,21 @@ int main(int argc, char **argv) {
 						exit(1);
 					}
 					break;
+				case 'h':
+					h_flag:
+					use_unicode_halfblock = 1;
+					break;
+				case 'H':
+					H_flag:
+					use_unicode_halfblock = 0;
+					break;
 				case '-':
 					if(strcmp(argv[arg]+2, "nsfw") == 0) goto n_flag;
 					if(strcmp(argv[arg]+2, "no-nsfw") == 0) goto N_flag;
 					if(strcmp(argv[arg]+2, "param") == 0) goto p_flag;
 					if(strcmp(argv[arg]+2, "endpoint") == 0) goto e_flag;
+					if(strcmp(argv[arg]+2, "halfblock") == 0) goto h_flag;
+					if(strcmp(argv[arg]+2, "no-halfblock") == 0) goto H_flag;
 			}
 		}
 	}
@@ -102,4 +114,7 @@ int main(int argc, char **argv) {
 	FILE *file = fopen(filename, "w");
 	fwrite(buffer, sizeof(char), size, file);
 	fclose(file);
+	if(display) {
+		render_image(buffer, size, file_format);
+	}
 }
