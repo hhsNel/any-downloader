@@ -121,6 +121,6 @@ static void resolve_json(endpoint_response *resp, char *buffer, size_t *size, ch
 	strcpy(next_url, resp->data_str);
 	strcat(next_url, value);
 	resolve_connection(next_url, resp + 1, &buffer, size, ctype, 0);
-	//cJSON_Delete(json);
+	cJSON_Delete(json);
 }
 

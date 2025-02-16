@@ -19,6 +19,8 @@ microseconds
 		-R             | --no-repeat         = download only once, then exit
 		-v             | --verbose           = toggle verbose mode on
 		-V             | --no-verbose        = toggle verbose mode off
+		-o             | --physical-file     = save downloaded image as a file
+		-O             | --no-physical-file  = don't save downloaded image as a file
 	Endpoint integration:
 		This utility is designed to be able to retrieve most images from most APIs. To archieve this,
 there should be a file that dictates which endpoints are usable and how to use them (config.def.h and

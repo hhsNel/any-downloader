@@ -155,7 +155,7 @@ void output_raw_image(struct imgRawImage img) {
 			size_t px_offset = 3 * (i * img.width + j);
 			length += sprintf(buffer + length, "\033[48;2;%d;%d;%dm ", (int)img.lpData[px_offset], (int)img.lpData[px_offset+1], (int)img.lpData[px_offset+2]);
 		}
-		printf("%s\n", buffer);
+		printf("%s\033[0m\n", buffer);
 	}
 }
 
@@ -171,7 +171,7 @@ void output_raw_image_halfblock(struct imgRawImage img) {
 					(int)img.lpData[px2_offset], (int)img.lpData[px2_offset+1], (int)img.lpData[px2_offset+2]
 					);
 		}
-		printf("%s\n", buffer);
+		printf("%s\033[0m\n", buffer);
 	}
 	/* skip last row if height is odd */
 }

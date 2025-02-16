@@ -112,6 +112,14 @@ int main(int argc, char **argv) {
 					V_flag:
 					verbose_mode = 0;
 					break;
+				case 'o':
+					o_flag:
+					save_as_file = 0;
+					break;
+				case 'O':
+					O_flag:
+					save_as_file = 0;
+					break;
 				case '-':
 					if(strcmp(argv[arg]+2, "count") == 0) goto c_flag;
 					else if(strcmp(argv[arg]+2, "nsfw") == 0) goto n_flag;
@@ -128,6 +136,8 @@ int main(int argc, char **argv) {
 					else if(strcmp(argv[arg]+2, "no-repeat") == 0) goto R_flag;
 					else if(strcmp(argv[arg]+2, "verbose") == 0) goto v_flag;
 					else if(strcmp(argv[arg]+2, "no-verbose") == 0) goto V_flag;
+					else if(strcmp(argv[arg]+2, "physical-file") == 0) goto o_flag;
+					else if(strcmp(argv[arg]+2, "no-physical-file") == 0) goto O_flag;
 					else {
 						LOGX("Unknown flag: %s\n", argv[arg]);
 					}
@@ -164,9 +174,9 @@ int main(int argc, char **argv) {
 	}
 	size_t sizes[count];
 	char *types[count];
+	char *file_formats[count];
 	do {
 		resolve_endpoint(chosen_endpoint, &head, buffer, sizes, (char **)types);
-		char *file_formats[count];
 		for(unsigned int i = 0; i < count; ++i) {
 			LOGX("Recieved: %lld bytes, Content-Type: %s\n", (long long int)sizes[i], types[i] ? types[i] : "NULL");
 			if(types[i]) {
@@ -176,13 +186,15 @@ int main(int argc, char **argv) {
 				file_formats[i] = "unknown";
 			}
 	
-			char filename[strlen(DOWNLOAD_FILENAME) + 3 + strlen(file_formats[i]) + 1];
-			sprintf(filename, DOWNLOAD_FILENAME, i);
-			strcat(filename, file_formats[i]);
-			LOGX("Writing to: %s\n", filename);
-			FILE *file = fopen(filename, "w");
-			fwrite(buffer[i], sizeof(char), sizes[i], file);
-			fclose(file);
+			if(save_as_file) {
+				char filename[strlen(DOWNLOAD_FILENAME) + 3 + strlen(file_formats[i]) + 1];
+				sprintf(filename, DOWNLOAD_FILENAME, i);
+				strcat(filename, file_formats[i]);
+				LOGX("Writing to: %s\n", filename);
+				FILE *file = fopen(filename, "wb");
+				fwrite(buffer[i], sizeof(char), sizes[i], file);
+				fclose(file);
+			}
 		}
 		if(display) {
 			LOG("Printing images...\n");
@@ -190,6 +202,9 @@ int main(int argc, char **argv) {
 				LOGX("Printing image: %u, located at memory addr: %p, of size: %llu\n", i, buffer[i], (unsigned long long)sizes[i]);
 				render_image(buffer[i], sizes[i], file_formats[i]);
 			}
+		}
+		for(unsigned int i = 0; i < count; ++i) {
+			free(types[i]);
 		}
 	} while(repeat);
 }

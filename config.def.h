@@ -28,6 +28,7 @@ int use_unicode_halfblock = 1;	/* Uses unicode halfblock to effectively double t
 /* int also_farbfeld = 1;	/* Also convert image to farbfeld and save. Needs display option * / <- not available at the moment */
 int repeat = 0;	/* repeat downloading instead of exiting. 1 = repeat, 0 = exit immadietly after everything else done */
 int verbose_mode = 1; /* default verbose mode. 1 = verbose, 0 = silent */
+int save_as_file = 0; /* Whether to save as a file. 1 = save, 0 = discard after print */
 endpoint *chosen_endpoint = &endpoints[0];	/* default endpoint (first endpoint on list) */
 
 #define DOWNLOAD_BUFFER_SIZE 8*1024*1024
