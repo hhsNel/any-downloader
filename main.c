@@ -21,6 +21,8 @@ int main(int argc, char **argv) {
 		if(argv[arg][0] == '-') {
 			switch(argv[arg][1]) {
 				case 'c':
+					printf("Not fully implemented yet");
+					exit(1);
 					if(arg + 1 >= argc) {
 						printf("Expected another argument after -c\n");
 						exit(1);
@@ -28,16 +30,23 @@ int main(int argc, char **argv) {
 					count = atoi(argv[++arg]);
 					break;
 				case 'n':
+					n_flag:
 					nsfw = 1;
 					break;
+				case 'N':
+					N_flag:
+					nsfw = 0;
+					break
 				case 'p':
+					p_flag:
 					if(arg + 2 >= argc) {
 						printf("Expected two more arguments after -t\n");
 						exit(1);
 					}
-					add_param(&head, argv[++argc], argv[++argc]);
+					add_param(&head, argv[++arg], argv[++arg]);
 					break;
 				case 'e':
+					e_flag:
 					if(arg + 1 >= argc) {
 						printf("Expected another argument after -e\n");
 						exit(1);
@@ -55,6 +64,11 @@ int main(int argc, char **argv) {
 						exit(1);
 					}
 					break;
+				case '-':
+					if(strcmp(argv[arg]+2, "nsfw") == 0) goto n_flag;
+					if(strcmp(argv[arg]+2, "no-nsfw") == 0) goto N_flag;
+					if(strcmp(argv[arg]+2, "param") == 0) goto p_flag;
+					if(strcmp(argv[arg]+2, "endpoint") == 0) goto e_flag;
 			}
 		}
 	}

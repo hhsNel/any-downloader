@@ -2,9 +2,19 @@ A hopefully somewhat SUCKLESS utility inspired by the masterpieces "CatgirlDownl
 What this utility should do:
 	Flags:
 		-n             | --nsfw              = retrieve nsfw images
+		-N             | --no-nsfw           = turn nsfw off
 		-p param value | --param param valye = add a parameter if the endpoint supports it
 		-e endpoint    | --endpoint endpoint = retrieve from {endpoint}
+                -d             | --display           = after retrieving image, show it on console
+                -D             | --no-display        = do not show image on console
+                -f             | --farbfeld          = also convert image to farbfeld
+                -F             | --no-farbfeld       = do not convert to farbfeld
+                -s micros      | --sleep micros      = after retrieving an image, wait for {micros}
+microseconds
+		-S             | --no-sleep          = do not wait after retrieving an image
 	Endpoint integration:
 		This utility is designed to be able to retrieve most images from most APIs. To archieve this,
 there should be a file that dictates which endpoints are usable and how to use them (config.def.h and
 config.h).
+	Shortest working build command:
+		gcc main.c -lcurl -ljson -ljpeg
