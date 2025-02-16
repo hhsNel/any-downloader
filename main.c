@@ -23,8 +23,7 @@ int main(int argc, char **argv) {
 		if(argv[arg][0] == '-') {
 			switch(argv[arg][1]) {
 				case 'c':
-					printf("Not fully implemented yet");
-					exit(1);
+					c_flag:
 					if(arg + 1 >= argc) {
 						printf("Expected another argument after -c\n");
 						exit(1);
@@ -66,6 +65,14 @@ int main(int argc, char **argv) {
 						exit(1);
 					}
 					break;
+				case 'd':
+					d_flag:
+					display = 1;
+					break;
+				case 'D':
+					D_flag:
+					display = 0;
+					break;
 				case 'h':
 					h_flag:
 					use_unicode_halfblock = 1;
@@ -74,19 +81,60 @@ int main(int argc, char **argv) {
 					H_flag:
 					use_unicode_halfblock = 0;
 					break;
+				case 's':
+					s_flag:
+					if(arg + 1 >= argc) {
+						printf("Expected another argument after -s\n");
+						exit(1);
+					}
+					sleep_after_image = 1;
+					sleep_micros = atoi(argv[++arg]);
+					break;
+				case 'S':
+					S_flag:
+					sleep_after_image = 0;
+					break;
+				case 'r':
+					r_flag:
+					repeat = 1;
+					break;
+				case 'R':
+					R_flag:
+					repeat = 0;
+					break;
 				case '-':
-					if(strcmp(argv[arg]+2, "nsfw") == 0) goto n_flag;
-					if(strcmp(argv[arg]+2, "no-nsfw") == 0) goto N_flag;
-					if(strcmp(argv[arg]+2, "param") == 0) goto p_flag;
-					if(strcmp(argv[arg]+2, "endpoint") == 0) goto e_flag;
-					if(strcmp(argv[arg]+2, "halfblock") == 0) goto h_flag;
-					if(strcmp(argv[arg]+2, "no-halfblock") == 0) goto H_flag;
+					if(strcmp(argv[arg]+2, "count") == 0) goto c_flag;
+					else if(strcmp(argv[arg]+2, "nsfw") == 0) goto n_flag;
+					else if(strcmp(argv[arg]+2, "no-nsfw") == 0) goto N_flag;
+					else if(strcmp(argv[arg]+2, "param") == 0) goto p_flag;
+					else if(strcmp(argv[arg]+2, "endpoint") == 0) goto e_flag;
+					else if(strcmp(argv[arg]+2, "display") == 0) goto d_flag;
+					else if(strcmp(argv[arg]+2, "no-display") == 0) goto D_flag;
+					else if(strcmp(argv[arg]+2, "halfblock") == 0) goto h_flag;
+					else if(strcmp(argv[arg]+2, "no-halfblock") == 0) goto H_flag;
+					else if(strcmp(argv[arg]+2, "sleep") == 0) goto s_flag;
+					else if(strcmp(argv[arg]+2, "no-sleep") == 0) goto S_flag;
+					else if(strcmp(argv[arg]+2, "repeat") == 0) goto r_flag;
+					else if(strcmp(argv[arg]+2, "no-repeat") == 0) goto R_flag;
+					else {
+						printf("Unknown flag: %s\n", argv[arg]);
+					}
+					break;
 			}
+		} else {
+			printf("Unknown flag 2: %s\n", argv[arg]);
 		}
 	}
 	if(nsfw) {
 		printf("Adding nsfw\n");
 		add_param(&head, "nsfw", "true");
+	}
+	count %= 1000;
+	if(count > 1) {
+		char *count_str = malloc(sizeof(char) * 4);
+		snprintf(count_str, 3, "%d", count);
+		printf("Adding count: %s", count_str);
+		add_param(&head, "count", count_str);
 	}
 	printf("Using endpoint: %s\n", chosen_endpoint->name);
 	param *param_print = &head;
@@ -95,26 +143,34 @@ int main(int argc, char **argv) {
 		printf("\tParameter: %s, value: %s\n", param_print->id, param_print->value);
 	}
 
-	char *buffer = malloc(DOWNLOAD_BUFFER_SIZE);
-	size_t size;
-	char *type;
-	resolve_endpoint(chosen_endpoint, &head, buffer, &size, &type);
-	printf("Recieved: %lld bytes, Content-Type: %s\n", (long long int)size, type ? type : "NULL");
-	char *file_format;
-	if(type) {
-		file_format = strchr(type, '/') + 1;
-		printf("Extracted file format: %s\n", file_format);
-	} else {
-		file_format = "unknown";
+	char *buffer[count];
+	for(unsigned int i = 0; i < count; ++i) {
+		buffer[i] = malloc(DOWNLOAD_BUFFER_SIZE);
 	}
-	char filename[strlen(DOWNLOAD_FILENAME) + strlen(file_format) + 1];
-	strcpy(filename, DOWNLOAD_FILENAME);
-	strcat(filename, file_format);
-	printf("Writing to: %s\n", filename);
-	FILE *file = fopen(filename, "w");
-	fwrite(buffer, sizeof(char), size, file);
-	fclose(file);
-	if(display) {
-		render_image(buffer, size, file_format);
+	size_t sizes[count];
+	char *types[count];
+	resolve_endpoint(chosen_endpoint, &head, buffer, sizes, (char **)types);
+	char *file_formats[count];
+	for(unsigned int i = 0; i < count; ++i) {
+		printf("Recieved: %lld bytes, Content-Type: %s\n", (long long int)sizes[i], types[i] ? types[i] : "NULL");
+		if(types[i]) {
+			file_formats[i] = strchr(types[i], '/') + 1;
+			printf("Extracted file format: %s\n", file_formats[i]);
+		} else {
+			file_formats[i] = "unknown";
+		}
+
+		char filename[strlen(DOWNLOAD_FILENAME) + 3 + strlen(file_formats[i]) + 1];
+		sprintf(filename, DOWNLOAD_FILENAME, i);
+		strcat(filename, file_formats[i]);
+		printf("Writing to: %s\n", filename);
+		FILE *file = fopen(filename, "w");
+		fwrite(buffer[i], sizeof(char), sizes[i], file);
+		fclose(file);
+	}
+	for(unsigned int i = 0; i < count; ++i) {
+		if(display) {
+			render_image(buffer[i], sizes[i], file_formats[i]);
+		}
 	}
 }

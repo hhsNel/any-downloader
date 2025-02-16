@@ -1,6 +1,7 @@
 A hopefully somewhat SUCKLESS utility inspired by the masterpieces "CatgirlDownloader" and "WaifuDownloader"
 What this utility should do:
 	Flags:
+		-c count       | --count count       = try to retrieve {count} images at a time
 		-n             | --nsfw              = retrieve nsfw images
 		-N             | --no-nsfw           = turn nsfw off
 		-p param value | --param param valye = add a parameter if the endpoint supports it
@@ -14,9 +15,13 @@ microseconds
 		-h             | --halfblock         = uses halfblock trick to double vertical resolution
 		-H             | --no-halfblock      = use spaces for normal vertical resolution
 		-S             | --no-sleep          = do not wait after retrieving an image
+		-r             | --reapeat           = repeat downloading catgirls
+		-R             | --no-repeat         = download only once, then exit
 	Endpoint integration:
 		This utility is designed to be able to retrieve most images from most APIs. To archieve this,
 there should be a file that dictates which endpoints are usable and how to use them (config.def.h and
 config.h).
 	Shortest working build command:
 		gcc main.c -lcurl -lcjson -ljpeg
+		You probably want to also add -g, and then proceed to gdb ./a.out and waste and hour of your
+life, because this was written across several days and there are probably bugs everywhere.

@@ -1,2 +1,0 @@
-#define JPEG_INPUT_BUFFER_SIZE 512
-

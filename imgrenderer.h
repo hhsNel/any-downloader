@@ -38,4 +38,7 @@ void render_image(char *buffer, size_t buffer_size, char *type) {
 	} else {
 		printf("Unsupported format. Not rendering\n");
 	}
+	if(sleep_after_image) {
+		usleep(sleep_micros);
+	}
 }

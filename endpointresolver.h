@@ -3,8 +3,10 @@
 #include <cjson/cJSON.h>
 
 cJSON *get_next_path(cJSON *json_path, char *id);
-static void resolve_connection(char *url, endpoint_response *resp, char *buffer, size_t *size, char **ctype);
-void resolve_endpoint(endpoint *ep, param *params, char *buffer, size_t *size, char **ctype);
+static void resolve_connection(char *url, endpoint_response *resp, char **buffer, size_t *size, char **ctype, int is_first);
+void resolve_endpoint(endpoint *ep, param *params, char **buffer, size_t *size, char **ctype);
+static void resolve_json(endpoint_response *resp, char *buffer, size_t *size, char **ctype, int ct);
+static void resolve_plaintext(endpoint_response *resp, char *buffer, size_t *size, char **ctype, int ct);
 
 cJSON *get_next_path(cJSON *json_path, char *id) {
 	if(id[0] == '\0') return json_path;
@@ -20,56 +22,31 @@ cJSON *get_next_path(cJSON *json_path, char *id) {
 	}
 }
 
-static void resolve_connection(char *url, endpoint_response *resp, char *buffer, size_t *size, char **ctype) {
+static void resolve_connection(char *url, endpoint_response *resp, char **buffer, size_t *size, char **ctype, int is_first) {
 	printf("Downloading url: %s\n", url);
-	download_http(url, buffer, size, ctype);
+	download_http(url, *buffer, size, ctype);
 	printf("Downloaded, size: %lld\n", (long long int)(*size));
-	char *next_url;
-	char *id;
+	unsigned int i;
 	switch(resp->data_type) {
 		case ENDPOINT_RESPONSE_PLAINTEXT:
 			printf("Treating recieved data as PLAINTEXT\n");
-			char *pos1 = strstr(buffer, resp->str1), *pos2 = strstr(buffer, resp->str2);
-			if(pos1 == NULL || pos2 == NULL) {
-				printf("Response strings not found in PLAINTEXT response\n");
-				exit(0);
+			if(is_first) {
+				for(i = count-1; i > 0; --i) {
+					resolve_plaintext(resp, buffer[i], size + i, ctype + i, i); 
+				}
+			} else {
+				resolve_json(resp, *buffer, size, ctype, 0);
 			}
-			pos1 += strlen(resp->str1);
-			next_url = malloc(strlen(resp->data_str)+pos2-pos1+1);
-			strcpy(next_url, resp->data_str);
-			strncat(next_url, pos1, pos2 - pos1 + 1);
-			resolve_connection(next_url, resp + 1, buffer, size, ctype);
-			free(next_url);
 			return;
 		case ENDPOINT_RESPONSE_JSON:
 			printf("Treating recieved data as JSON\n");
-			cJSON *json = cJSON_Parse(buffer);
-			char *last_path = resp->str1, *path = resp->str1;
-			cJSON *json_path = json;
-			while(1) {
-				switch(*path) {
-					case ']':	/* FALLTHROUGH */
-					case '[':
-					case '.':
-					case '\0':
-						id = malloc(path - last_path + 1);
-						strncpy(id, last_path, path - last_path);
-						id[path-last_path] = '\0';
-						json_path = get_next_path(json_path, id);
-						free(id);
-						last_path = path + 1;
-						break;
+			if(is_first) {
+				for(i = 0; i < count; ++i) {
+					resolve_json(resp, buffer[i], size + i, ctype + i, i);
 				}
-				if(*path == '\0') break;
-				++path;
+			} else {
+				resolve_json(resp, *buffer, size, ctype, 0);
 			}
-			char *value = json_path->valuestring;
-			next_url = malloc(strlen(resp->data_str)+strlen(value)+1);
-			strcpy(next_url, resp->data_str);
-			strcat(next_url, value);
-			resolve_connection(next_url, resp + 1, buffer, size, ctype);
-			//cJSON_Delete(json);
-			free(next_url);
 			return;
 		case ENDPOINT_RESPONSE_IMAGE:
 			printf("Treating recieved data as IMAGE\n");
@@ -80,20 +57,70 @@ static void resolve_connection(char *url, endpoint_response *resp, char *buffer,
 	}
 }
 
-void resolve_endpoint(endpoint *ep, param *params, char *buffer, size_t *size, char **ctype) {
-	strcpy(buffer, ep->base_url);
+void resolve_endpoint(endpoint *ep, param *params, char **buffer, size_t *size, char **ctype) {
+	strcpy(*buffer, ep->base_url);
 	while(params) {
 		for(int i = 0; i < MAX_URL_OPTIONS; ++i) {
 			if(strcmp(params->id, ep->options[i].option) == 0) {
-				size_t chars_written = sprintf(buffer + strlen(buffer), ep->options[i].format, params->value);
-				printf("Parameter: %s, detected and supported. Format: %s, value: %s, formatted: %s\n", params->id, ep->options[i].format, params->value, buffer + strlen(buffer) - chars_written);
+				size_t chars_written = sprintf(*buffer + strlen(*buffer), ep->options[i].format, params->value);
+				printf("Parameter: %s, detected and supported. Format: %s, value: %s, formatted: %s\n", params->id, ep->options[i].format, params->value, *buffer + strlen(*buffer) - chars_written);
 			}
 		}
 		params = params->next;
 	}
-	strcat(buffer, ep->url_suffix);
-	char url[strlen(buffer) + 1];
-	strcpy(url, buffer);
-	resolve_connection(url, ep->responses, buffer, size, ctype);
+	strcat(*buffer, ep->url_suffix);
+	char url[strlen(*buffer) + 1];
+	strcpy(url, *buffer);
+	resolve_connection(url, ep->responses, buffer, size, ctype, 1);
+}
+
+static void resolve_plaintext(endpoint_response *resp, char *buffer, size_t *size, char **ctype, int ct) {
+	char fstr1[strlen(resp->str1) + 3 + 1];
+	char fstr2[strlen(resp->str2) + 3 + 1];
+	sprintf(fstr1, resp->str1, ct);
+	sprintf(fstr2, resp->str2, ct);
+	char *pos1 = strstr(buffer, fstr1), *pos2 = strstr(buffer, fstr2);
+	if(pos1 == NULL || pos2 == NULL) {
+		printf("Response strings not found in PLAINTEXT response\n");
+		exit(0);
+	}
+	pos1 += strlen(fstr1);
+	char next_url[strlen(resp->data_str)+pos2-pos1+1];
+	strcpy(next_url, resp->data_str);
+	strncat(next_url, pos1, pos2 - pos1 + 1);
+	resolve_connection(next_url, resp + 1, &buffer, size, ctype, 0);
+}
+
+static void resolve_json(endpoint_response *resp, char *buffer, size_t *size, char **ctype, int ct) {
+	char *id;
+	char fpath[strlen(resp->str1) + 3 + 1];
+	sprintf(fpath, resp->str1, ct);
+
+	cJSON *json = cJSON_Parse(buffer);
+	char *last_path = fpath, *path = fpath;
+	cJSON *json_path = json;
+	while(1) {
+		switch(*path) {
+			case ']':	/* FALLTHROUGH */
+			case '[':
+			case '.':
+			case '\0':
+				id = malloc(path - last_path + 1);
+				strncpy(id, last_path, path - last_path);
+				id[path-last_path] = '\0';
+				json_path = get_next_path(json_path, id);
+				free(id);
+				last_path = path + 1;
+				break;
+		}
+		if(*path == '\0') break;
+		++path;
+	}
+	char *value = json_path->valuestring;
+	char next_url[strlen(resp->data_str)+strlen(value)+1];
+	strcpy(next_url, resp->data_str);
+	strcat(next_url, value);
+	resolve_connection(next_url, resp + 1, &buffer, size, ctype, 0);
+	//cJSON_Delete(json);
 }
 
