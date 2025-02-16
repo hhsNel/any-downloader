@@ -44,7 +44,8 @@ int main(int argc, char **argv) {
 						printf("Expected two more arguments after -t\n");
 						exit(1);
 					}
-					add_param(&head, argv[++arg], argv[++arg]);
+					add_param(&head, argv[arg + 1], argv[arg + 2]);
+					arg += 2;
 					break;
 				case 'e':
 					e_flag:
@@ -133,7 +134,7 @@ int main(int argc, char **argv) {
 	if(count > 1) {
 		char *count_str = malloc(sizeof(char) * 4);
 		snprintf(count_str, 3, "%d", count);
-		printf("Adding count: %s", count_str);
+		printf("Adding count: %s\n", count_str);
 		add_param(&head, "count", count_str);
 	}
 	printf("Using endpoint: %s\n", chosen_endpoint->name);
@@ -168,8 +169,10 @@ int main(int argc, char **argv) {
 		fwrite(buffer[i], sizeof(char), sizes[i], file);
 		fclose(file);
 	}
-	for(unsigned int i = 0; i < count; ++i) {
-		if(display) {
+	if(display) {
+		printf("Printing images...\n");
+		for(unsigned int i = 0; i < count; ++i) {
+			printf("Printing image: %u, located at memory addr: %p, of size: %llu\n", i, buffer[i], (unsigned long long)sizes[i]);
 			render_image(buffer[i], sizes[i], file_formats[i]);
 		}
 	}

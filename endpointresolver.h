@@ -32,21 +32,21 @@ static void resolve_connection(char *url, endpoint_response *resp, char **buffer
 			printf("Treating recieved data as PLAINTEXT\n");
 			if(is_first) {
 				for(i = count-1; i > 0; --i) {
+					memcpy(buffer[i], *buffer, *size);
 					resolve_plaintext(resp, buffer[i], size + i, ctype + i, i); 
 				}
-			} else {
-				resolve_json(resp, *buffer, size, ctype, 0);
 			}
+			resolve_json(resp, *buffer, size, ctype, 0);
 			return;
 		case ENDPOINT_RESPONSE_JSON:
 			printf("Treating recieved data as JSON\n");
 			if(is_first) {
-				for(i = 0; i < count; ++i) {
+				for(i = count-1; i > 0; --i) {
+					memcpy(buffer[i], *buffer, *size);
 					resolve_json(resp, buffer[i], size + i, ctype + i, i);
 				}
-			} else {
-				resolve_json(resp, *buffer, size, ctype, 0);
 			}
+			resolve_json(resp, *buffer, size, ctype, 0);
 			return;
 		case ENDPOINT_RESPONSE_IMAGE:
 			printf("Treating recieved data as IMAGE\n");
