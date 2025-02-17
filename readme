@@ -33,3 +33,55 @@ config.h).
 		gcc main.c -lcurl -lcjson -ljpeg
 		You probably want to also add -g, and then proceed to gdb ./a.out and waste and hour of your
 life, because this was written across several days and there are probably bugs everywhere.
+	Alright, so: endpoints:
+		Endpoints are defined over two lines, but that's just an aesthetical choice, you can have
+everything in it's own line or condense everything to one line (C is not some garbage like python). 
+		An endpoint declaration begins with a '{' (' single quotes signify 1 character), and ends 
+with a '}', followed by a ',' (optional on the last line, but only there). Between those {} braces, there
+are several different "sections" of an endpoint:
+			endpoint name = a name surrounded in "" quotes. Has no meaning other than
+identifying the endpoint for the use of the -e flag. Please note that in case of duplicate names, the one
+further up on the list will be chosen.
+			endpoint url = a base URL of the endpoint. Is appended with parameters, then with
+a url suffix.
+			endpoint url options = an array of options, of length MAX_URL_OPTIONS. Each option
+is separated by a ',' comma, and formatted as {"<parameter>","<evaluated_parameter"}, with parameter and
+evaluated_parameter surrounded by "" quotes. The parameter is the string searched for when specifying
+parameters using eg. the -p flag (some parameters are pre-placed automatically). The evaluated_parameter,
+also surrounded by "" quotes, is what should be appended to the url should the parameter be specified.
+The %s format string is automatically replaced with the value of the parameter. An example of a url option
+would be: {"tag","&included_tags=%s"} which (if parameter "tag" is found), appends to the url the string
+&included_tags= followed by the value of the tag parameter, so eg. -p tag maid would result in the
+appended string: &included_tags=maid
+			url suffix = gets appended to the url after all the tags have been processed.
+			endpoint responses = an array of objects formatted as such:
+				{	= beginning of endpoint responses
+				{	= beginning of response            \
+				ENDPOINT_RESPONSE_PLAINTEXT or              |
+				ENDPOINT_RESPONSE_JSON or                   |
+				ENDPOINT_RESPONSE_IMAGE or                  |
+				ENDPOINT_RESPONSE_NONE = signify the type   |
+of the response.                                                            |
+					PLAINTEXT = read the value          |
+in-between the two strings                                                  |
+					JSON = read the value, as           |
+instructed by the first string. A '.' means "going into" an object, and     |
+[] bracket with a number inside them means "going into" an array, at        |
+index equal to that number (0-indexed). Eg. "images[%d].id"                 |
+					IMAGE = treat the response as the   | Everything here repeated
+image and exit.                                                             | MAX_RESPONSE_JUMPS times
+					NONE = stop parsing the string.     |
+				The first ENDPOINT_RESPONSE will have any   |
+"%d" format strings substituted with a 0-indexed index of the current image |
+(0 <= index < count), eg. if count=3, the first endpoint response would be  |
+parsed three times, with %d substituted with 0, 1, and 2. Each subsequent   |
+ENDPOINT_RESPONSE will have %d-s substituted with 0.                        |
+				string 1 = used for PLAINTEXT and JSON      |
+parsing.                                                                    |
+				string 2 = used for PLAINTEXT parsing       |
+				data string = The "prefix" for the value    |
+extracted from the response (if using JSON or PLAINTEXT). That value gets   |
+concatenated onto this data string, forming the next url.                   |
+				}	= end of response                  /
+				}	= end of endpoint responses
+				
