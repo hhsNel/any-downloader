@@ -1,6 +1,9 @@
 #define MAX_RESPONSE_JUMPS 2
+/* Maximum amount of URL "hoops" to jump through, eg: nekos API URL -> nekos API image -> actual image file = 2 hoops */
 #define MAX_URL_OPTIONS 3
+/* Maximum amount of different URL parameters and endpoint could support */
 
+/* ignore this */
 typedef struct _endpoint {
 	char *name;
 	char *base_url;
@@ -8,7 +11,9 @@ typedef struct _endpoint {
 	char *url_suffix;
 	endpoint_response responses[MAX_RESPONSE_JUMPS];
 } endpoint;
+/* ok now stop ignoring this */
 
+/* different endpoint. How to add one will maybe be later added to readme (check readme anyway because I might have forgotten to edit this) */
 endpoint endpoints[] = {
 	/* endpoint name     endpoint url                                endpoint url options                                                            url suffix     (responses in new line) */
 	{ "nekos",           "https://nekos.moe/api/v1/random/image?",    {{"nsfw","&nsfw=true"},{"count","&count=%s"},{"",""}},                         "",	/* nokos.moe API v1 */
@@ -18,22 +23,23 @@ endpoint endpoints[] = {
 };
 
 unsigned int count = 1;	/* default count */
-int nsfw = 1;	/* default nsfw. 1 = true, 0 = false */
+int nsfw = 0;	/* default nsfw. 1 = true, 0 = false */
 int sleep_after_image = 0;	/* default sleep. 1 = sleep, 0 = don't sleep */
-useconds_t sleep_micros = 10000000;	/* if sleep, sleep for this many microseconds. 1s = 1000ms = 1000000us */
+useconds_t sleep_micros = 50000000;	/* if sleep, sleep for this many microseconds. 1s = 1000ms = 1000000us */
 int display = 1;	/* default display. 1 = display the image, 0 = exit when image done */
 unsigned long int display_width = 0;	/* If display, set this as max width. 0 or -1 = auto-detect terminal width, use that. */
 unsigned long int display_height = -1;	/* If display, set this as max height. 0 = auto-detect terminal height, use that. -1 = auto-detect terminal height, subtract 1, use that */
 int use_unicode_halfblock = 1;	/* Uses unicode halfblock to effectively double the resolution on the Y axis. 1 = use, 0 = don't use. Not all terminals support it */
-/* int also_farbfeld = 1;	/* Also convert image to farbfeld and save. Needs display option * / <- not available at the moment */
+/* int also_farbfeld = 1;	/ * Also convert image to farbfeld and save. Needs display option * / <- not available at the moment */
 int repeat = 0;	/* repeat downloading instead of exiting. 1 = repeat, 0 = exit immadietly after everything else done */
 int verbose_mode = 1; /* default verbose mode. 1 = verbose, 0 = silent */
 int save_as_file = 0; /* Whether to save as a file. 1 = save, 0 = discard after print */
 endpoint *chosen_endpoint = &endpoints[0];	/* default endpoint (first endpoint on list) */
 
-#define DOWNLOAD_BUFFER_SIZE 8*1024*1024
-/* max download size: 8 mb */
+#define DOWNLOAD_BUFFER_SIZE 16*1024*1024
+/* max download size: 16 mb * count */
 
 #define DOWNLOAD_FILENAME "ad-out-%d."
-/* filename without file extenstion */
+/* filename without file extenstion. For those not knowing format strings, %d means "insert a number here", that number being the # of the currently
+ * downloaded image, from 0 till count-1. */
 
