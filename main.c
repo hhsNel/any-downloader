@@ -120,6 +120,22 @@ int main(int argc, char **argv) {
 					O_flag:
 					save_as_file = 0;
 					break;
+				case 'x':
+					x_flag:
+					if(arg + 1 >= argc) {
+						LOG("Expected another argument after -x\n");
+						exit(1);
+					}
+					display_width = atoi(argv[++arg]);
+					break;
+				case 'y':
+					y_flag:
+					if(arg + 1 >= argc) {
+						LOG("Expected another argument after -y\n");
+						exit(1);
+					}
+					display_height = atoi(argv[++arg]);
+					break;
 				case '-':
 					if(strcmp(argv[arg]+2, "count") == 0) goto c_flag;
 					else if(strcmp(argv[arg]+2, "nsfw") == 0) goto n_flag;
@@ -138,6 +154,8 @@ int main(int argc, char **argv) {
 					else if(strcmp(argv[arg]+2, "no-verbose") == 0) goto V_flag;
 					else if(strcmp(argv[arg]+2, "physical-file") == 0) goto o_flag;
 					else if(strcmp(argv[arg]+2, "no-physical-file") == 0) goto O_flag;
+					else if(strcmp(argv[arg]+2, "x") == 0) goto x_flag;
+					else if(strcmp(argv[arg]+2, "y") == 0) goto y_flag;
 					else {
 						LOGX("Unknown flag: %s\n", argv[arg]);
 					}
