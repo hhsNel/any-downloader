@@ -5,7 +5,6 @@
 
 #define TO_BIG_ENDIAN(val) \
 	(((val) % 256) << 24 | ((val) / 256) % 256 << 16 | ((val) / 65536) % 256 << 8 | ((val) / 16777216) % 256)
-#define DEBUG
 
 struct imgRawImage {
 	unsigned int numComponents;
@@ -32,14 +31,11 @@ struct imgRawImage *load_jpeg(struct jpeg_decompress_struct *info) {
 	imgHeight = info->output_height;
 	numComponents = info->num_components;
 
-	#ifdef DEBUG
-	fprintf(
-		stderr,
+	LOGX(
 		"%s:%u: Reading JPEG with dimensions %lu x %lu and %u components\n",
 		__FILE__, __LINE__,
 		imgWidth, imgHeight, numComponents
 	);
-	#endif
 
 	dwBufferBytes = imgWidth * imgHeight * 3; /* We only read RGB, not A */
 	lpData = (unsigned char*)malloc(sizeof(unsigned char)*dwBufferBytes);
