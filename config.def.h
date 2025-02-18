@@ -1,6 +1,6 @@
 #define MAX_RESPONSE_JUMPS 2
 /* Maximum amount of URL "hoops" to jump through, eg: nekos API URL -> nekos API image -> actual image file = 2 hoops */
-#define MAX_URL_OPTIONS 3
+#define MAX_URL_OPTIONS 4
 /* Maximum amount of different URL parameters and endpoint could support */
 
 /* ignore this */
@@ -15,10 +15,10 @@ typedef struct _endpoint {
 
 /* different endpoint. How to add one will maybe be later added to readme (check readme anyway because I might have forgotten to edit this) */
 endpoint endpoints[] = {
-	/* endpoint name     endpoint url                                endpoint url options                                                            url suffix     (responses in new line) */
-	{ "nekos",           "https://nekos.moe/api/v1/random/image?",    {{"nsfw","&nsfw=true"},{"count","&count=%s"},{"",""}},                         "",	/* nokos.moe API v1 */
+	/* endpoint name     endpoint url                                endpoint url options                                                                                         url suffix     (responses in new line) */
+	{ "nekos",           "https://nekos.moe/api/v1/random/image?",    {{"nsfw","&nsfw=true"},{"no-nsfw","&nsfw=false"},{"count","&count=%s"},{"",""}},                            "",	/* nokos.moe API v1 */
 		{{ENDPOINT_RESPONSE_JSON,"images[%d].id","","https://nekos.moe/image/"},{ENDPOINT_RESPONSE_IMAGE,"","",""}} },
-	{ "waifu",           "https://api.waifu.im/search?",              {{"nsfw","&is_nsfw=true"},{"tag","&included_tags=%s"},{"count","&limit=%s"}},  "",	/* waifu.im API version unknown */
+	{ "waifu",           "https://api.waifu.im/search?",              {{"nsfw","&is_nsfw=true"},{"no-nsfw","&is_nsfw=false"},{"tag","&included_tags=%s"},{"count","&limit=%s"}},  "",	/* waifu.im API version unknown */
 		{{ENDPOINT_RESPONSE_JSON,"images[%d].url","",""},{ENDPOINT_RESPONSE_IMAGE,"","",""}} },
 };
 

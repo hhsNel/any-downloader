@@ -168,6 +168,9 @@ int main(int argc, char **argv) {
 	if(nsfw) {
 		LOG("Adding nsfw\n");
 		add_param(&head, "nsfw", "true");
+	} else {
+		LOG("Adding no-nsfw\n");
+		add_param(&head, "no-nsfw", "flase");
 	}
 	count %= 1000;
 	if(count > 1) {
