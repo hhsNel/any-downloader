@@ -59,11 +59,15 @@ static void resolve_connection(char *url, endpoint_response *resp, char **buffer
 
 void resolve_endpoint(endpoint *ep, param *params, char **buffer, size_t *size, char **ctype) {
 	strcpy(*buffer, ep->base_url);
+	int is_count_recognized = 0;
 	while(params) {
 		for(int i = 0; i < MAX_URL_OPTIONS; ++i) {
 			if(strcmp(params->id, ep->options[i].option) == 0) {
 				size_t chars_written = sprintf(*buffer + strlen(*buffer), ep->options[i].format, params->value);
 				LOGX("Parameter: %s, detected and supported. Format: %s, value: %s, formatted: %s\n", params->id, ep->options[i].format, params->value, *buffer + strlen(*buffer) - chars_written);
+				if(strcmp(params->id, "count") == 0) {
+					is_count_recognized = 1;
+				}
 			}
 		}
 		params = params->next;
@@ -71,7 +75,13 @@ void resolve_endpoint(endpoint *ep, param *params, char **buffer, size_t *size, 
 	strcat(*buffer, ep->url_suffix);
 	char url[strlen(*buffer) + 1];
 	strcpy(url, *buffer);
-	resolve_connection(url, ep->responses, buffer, size, ctype, 1);
+	if(is_count_recognized) {
+		resolve_connection(url, ep->responses, buffer, size, ctype, 1);
+	} else {
+		for(int i = 0; i < count; ++i) {
+			resolve_connection(url, ep->responses, buffer, size, ctype, 0);
+		}
+	}
 }
 
 static void resolve_plaintext(endpoint_response *resp, char *buffer, size_t *size, char **ctype, int ct) {
