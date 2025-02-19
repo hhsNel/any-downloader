@@ -4,7 +4,7 @@
 #include "image.h"
 
 void render_image(char *buffer, size_t buffer_size, char *type) {
-	if(strcmp(type, "jpeg") == 0 || strcmp(type, "jfif") == 0) {
+	if(strcmp(type, "jpeg")) {
 		struct imgRawImage *img = load_jpeg_from_buff(buffer, buffer_size);
 
 		unsigned long int w = display_width;
