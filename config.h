@@ -45,3 +45,31 @@ endpoint *chosen_endpoint = &endpoints[0];	/* default endpoint (first endpoint o
 /* filename without file extenstion. For those not knowing format strings, %d means "insert a number here", that number being the # of the currently
  * downloaded image, from 0 till count-1. */
 
+#define USE_HELPER_NO_ARGS 0
+/* Whether to display the helper string and exit when no arguments are provided. 1 = do that, 0 = proceed with default options */
+#define HELPER_STRING "\
+-c count       | --count count       = try to retrieve {count} images at a time                      \n\
+-n             | --nsfw              = retrieve nsfw images                                          \n\
+-N             | --no-nsfw           = turn nsfw off                                                 \n\
+-p param value | --param param valye = add a parameter if the endpoint supports it                   \n\
+-e endpoint    | --endpoint endpoint = retrieve from {endpoint}                                      \n\
+-d             | --display           = after retrieving image, show it on console                    \n\
+-D             | --no-display        = do not show image on console                                  \n\
+-f             | --farbfeld          = also convert image to farbfeld                                \n\
+-F             | --no-farbfeld       = do not convert to farbfeld                                    \n\
+-s micros      | --sleep micros      = after retrieving an image, wait for {micros} microseconds     \n\
+-h             | --halfblock         = uses halfblock trick to double vertical resolution            \n\
+-H             | --no-halfblock      = use spaces for normal vertical resolution                     \n\
+-S             | --no-sleep          = do not wait after retrieving an image                         \n\
+-r             | --reapeat           = repeat downloading catgirls                                   \n\
+-R             | --no-repeat         = download only once, then exit                                 \n\
+-v             | --verbose           = toggle verbose mode on                                        \n\
+-V             | --no-verbose        = toggle verbose mode off                                       \n\
+-o             | --physical-file     = save downloaded image as a file                               \n\
+-O             | --no-physical-file  = don't save downloaded image as a file                         \n\
+-x chars       | --x chars           = the rendered image should be {chars} characters wide.         \n\
+0 or -1 pull terminal width, then use that. Useless without -d.                                      \n\
+-y chars       | --y chars           = the rendered image should be {chars} characters tall.         \n\
+0 pulls terminal width, then uses that. -1 pulls terminal width and subtracts 1. Useless without -d. \n\
+                 --help              = display helper string and exit.                               \n"
+

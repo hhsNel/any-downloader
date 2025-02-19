@@ -16,6 +16,13 @@ int main(int argc, char **argv) {
 	curl_global_init(CURL_GLOBAL_ALL);
 	printf("any-downloader\n");
 
+	if(USE_HELPER_NO_ARGS) {
+		if(argc == 1) {
+			printf(HELPER_STRING);
+			exit(0);
+		}
+	}
+
 	param head;
 	head.id = "";
 	head.value = "";
@@ -156,6 +163,10 @@ int main(int argc, char **argv) {
 					else if(strcmp(argv[arg]+2, "no-physical-file") == 0) goto O_flag;
 					else if(strcmp(argv[arg]+2, "x") == 0) goto x_flag;
 					else if(strcmp(argv[arg]+2, "y") == 0) goto y_flag;
+					else if(strcmp(argv[arg]+2, "help") == 0) {
+						printf(HELPER_STRING);
+						exit(0);
+					}
 					else {
 						LOGX("Unknown flag: %s\n", argv[arg]);
 					}
