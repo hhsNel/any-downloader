@@ -20,6 +20,8 @@ endpoint endpoints[] = {
 		{{ENDPOINT_RESPONSE_JSON,"images[%d].id","","https://nekos.moe/image/"},{ENDPOINT_RESPONSE_IMAGE,"","",""}} },
 	{ "waifu",           "https://api.waifu.im/search?",              {{"nsfw","&is_nsfw=true"},{"no-nsfw","&is_nsfw=false"},{"tag","&included_tags=%s"},{"count","&limit=%s"}},  "",	/* waifu.im API version unknown */
 		{{ENDPOINT_RESPONSE_JSON,"images[%d].url","",""},{ENDPOINT_RESPONSE_IMAGE,"","",""}} },
+	/* If an endpoint you're trying to add does not have a public API, try to contact the dev team or anyone else to see if they are OK with it.
+	 * Definietly do not share with others endpoints that were not intended by their developer for application use without that develloper's consent */
 };
 
 unsigned int count = 1;	/* default count */
