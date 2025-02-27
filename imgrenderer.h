@@ -4,6 +4,9 @@
 #include "image.h"
 
 void render_image(char *buffer, size_t buffer_size, char *type) {
+	if(clear_before_display) {
+		printf("\033[2J");
+	}
 	if(strcmp(type, "jpeg") == 0) {
 		struct imgRawImage *img = load_jpeg_from_buff(buffer, buffer_size);
 

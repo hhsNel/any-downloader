@@ -36,6 +36,7 @@ int use_unicode_halfblock = 1;	/* Uses unicode halfblock to effectively double t
 int repeat = 0;	/* repeat downloading instead of exiting. 1 = repeat, 0 = exit immadietly after everything else done */
 int verbose_mode = 1; /* default verbose mode. 1 = verbose, 0 = silent */
 int save_as_file = 0; /* Whether to save as a file. 1 = save, 0 = discard after print */
+int clear_before_display = 0; /* Whether or not to clear the screen before displaying the image. 1 = clear, 0 = preserve */
 endpoint *chosen_endpoint = &endpoints[0];	/* default endpoint (first endpoint on list) */
 
 #define DOWNLOAD_BUFFER_SIZE 16*1024*1024
