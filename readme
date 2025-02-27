@@ -26,6 +26,8 @@ microseconds
 		-y chars       | --y chars           = the rendered image should be {chars} characters tall.
 0 pulls terminal width, then uses that. -1 pulls terminal width and subtracts 1. Useless without -d.
 		                 --help              = display helper string and exit.
+		-b             | --clear             = clear screen before displaying image
+		-B             | --no-clear          = don't clear the creen
 	Endpoint integration:
 		This utility is designed to be able to retrieve most images from most APIs. To archieve this,
 there should be a file that dictates which endpoints are usable and how to use them (config.def.h and

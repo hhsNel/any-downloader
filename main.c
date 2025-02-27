@@ -143,6 +143,14 @@ int main(int argc, char **argv) {
 					}
 					display_height = atoi(argv[++arg]);
 					break;
+				case 'b':
+					b_flag:
+					clear_before_display = 1;
+					break;
+				case 'B':
+					B_flag:
+					clear_before_display = 0;
+					break;
 				case '-':
 					if(strcmp(argv[arg]+2, "count") == 0) goto c_flag;
 					else if(strcmp(argv[arg]+2, "nsfw") == 0) goto n_flag;
@@ -163,6 +171,8 @@ int main(int argc, char **argv) {
 					else if(strcmp(argv[arg]+2, "no-physical-file") == 0) goto O_flag;
 					else if(strcmp(argv[arg]+2, "x") == 0) goto x_flag;
 					else if(strcmp(argv[arg]+2, "y") == 0) goto y_flag;
+					else if(strcmp(argv[arg]+2, "clear") == 0) goto b_flag;
+					else if(strcmp(argv[arg]+2, "no-clear") == 0) goto B_flag;
 					else if(strcmp(argv[arg]+2, "help") == 0) {
 						printf(HELPER_STRING);
 						exit(0);
