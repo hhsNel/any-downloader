@@ -72,5 +72,7 @@ endpoint *chosen_endpoint = &endpoints[0];	/* default endpoint (first endpoint o
 0 or -1 pull terminal width, then use that. Useless without -d.                                      \n\
 -y chars       | --y chars           = the rendered image should be {chars} characters tall.         \n\
 0 pulls terminal width, then uses that. -1 pulls terminal width and subtracts 1. Useless without -d. \n\
-                 --help              = display helper string and exit.                               \n"
+                 --help              = display helper string and exit.                               \n\
+-b             | --clear             = clear screen before displaying image                          \n\
+-B             | --no-clear          = don't clear the creen                                         \n"
 
